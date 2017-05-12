@@ -62,6 +62,9 @@ public class MoonBot implements IListener<MessageReceivedEvent>
 		// Channel from which message was sent
 		IChannel channel = message.getChannel();
 		
+		// Text content of the message
+		String content = message.getContent();
+		
 		try {
 			new MessageBuilder(this.client).withChannel(channel)
 			.withContent(message.getContent()).build();
