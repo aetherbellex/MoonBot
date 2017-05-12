@@ -7,7 +7,6 @@ import sx.blah.discord.util.DiscordException;
 // Example for getting started with the Discord4J API from https://github.com/austinv11/Discord4J
 public class Example 
 {
-	private static String myToken = "MjM4MzYxMzc3MjA5NTgxNTY5.C_YswQ.zPJ-Rn3eJg_IMigTeA068HzWP20";
 	
 	// Returns a new instance of the Discord client
 	public static IDiscordClient createClient(String token, boolean login) 
@@ -28,6 +27,6 @@ public class Example
 	
 	public static void main(String[] args)
 	{
-		IDiscordClient myClient = Example.createClient(myToken, true);
+		//IDiscordClient myClient = Example.createClient(myToken, true);
 	}
 }
