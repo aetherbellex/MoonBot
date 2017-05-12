@@ -5,8 +5,11 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -35,9 +38,22 @@ public class USNO
 	 */
 	public static String getMoonPhase(int numPhases) throws IOException
 	{
+		// This maps each moon phase to the one preceding it. This is
+		// used to resolve the case where the API, given the current date,
+		// returns the NEXT moon phase and not the CURRENT moon phase.
+		// This happens because the API returns the moon phases starting
+		// from the specified date, and doesn't include the moon phase
+		// of the current date (only if today falls on the day of a new phase).
+		HashMap<String, String> moonMap = new HashMap<String, String>();
+		moonMap.put("New Moon", "Last Quarter");
+		moonMap.put("First Quarter", "New Moon");
+		moonMap.put("Full Moon", "First Quarter");
+		moonMap.put("Last Quarter", "Full Moon");
+		
 		// Get the current date in month/day/year format, since that's what the site needs
 		SimpleDateFormat sdf = new SimpleDateFormat("M/dd/yyyy");
-		String date = sdf.format(new Date());
+		Date currentDate = new Date();
+		String date = sdf.format(currentDate);
 		System.out.println(date);
 		
 		// Build the complete URL to query using the current date and specified numPhases
@@ -64,7 +80,7 @@ public class USNO
         // Make sure to close the connection
         in.close();
         
-        //System.out.println(response.toString());
+        System.out.println(response.toString());
         
         String jsonString = response.toString();
         
@@ -76,10 +92,24 @@ public class USNO
         
         JsonObject phaseObject = (JsonObject) phaseDataArray.get(0);
         String phaseResult = phaseObject.get("phase").getAsString();
+        String phaseDate = phaseObject.get("date").getAsString();
+        
+        DateFormat format = new SimpleDateFormat("yyyy MMMM d");
+        
+        try {
+			Date phaseDateObj = format.parse(phaseDate);
+			if (currentDate.before(phaseDateObj))
+			{
+				return moonMap.get(phaseResult);
+			}
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        
+        System.out.println(phaseResult);
         
         return phaseResult;
-        
-        //System.out.println(phaseResult);
 		
 		//return null;
 	}
