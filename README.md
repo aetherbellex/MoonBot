@@ -5,3 +5,7 @@ A simple bot for the chat program [Discord](https://discordapp.com/) that will t
 ## Usage
 
 The bot has to be invited to a server of your choice by visting a specific URL (to be added). Once the bot is a part of a server, and while the bot is running, typing the command "!moon" in a channel will activate the bot and cause it to return the current phase of the moon.
+
+## Example
+
+![Example image](https://www.dropbox.com/s/jqrsn7000rlvts0/Capture.PNG?raw=1)
