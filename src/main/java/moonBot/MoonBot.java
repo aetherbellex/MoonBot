@@ -1,6 +1,8 @@
 package moonBot;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 
 import sx.blah.discord.api.ClientBuilder;
 import sx.blah.discord.api.IDiscordClient;
@@ -14,10 +16,23 @@ import sx.blah.discord.util.MessageBuilder;
 import sx.blah.discord.util.MissingPermissionsException;
 import sx.blah.discord.util.RateLimitException;
 
+/**
+ * A simple bot for the chat program Discord that will tell you the moon phase for today, 
+ * to the nearest quarter phase. Uses data from the U.S. Naval Observatory.
+ * 
+ * TODO: Add support for uploading images corresponding to the moon phase to Discord
+ * 
+ * @author Tasso Sales-Filho
+ *
+ */
 public class MoonBot implements IListener<MessageReceivedEvent>
 {
 	public static MoonBot INSTANCE;
 	public IDiscordClient client;
+	
+	// This maps the string moon phases to an image of that moon phase
+	private static HashMap<String, String> moonPicMap;
+
 	
 	// Main method will log in
 	public static void main(String[] args)
@@ -28,13 +43,31 @@ public class MoonBot implements IListener<MessageReceivedEvent>
 		INSTANCE = login(args[0]); // Creates the bot instance and logs it in.
 	}
 	
+	/**
+	 * Construct the bot, associate a Discord client with it, and register
+	 * an EventDispatcher so it can react to things.
+	 * 
+	 * @param client		Discord client
+	 */
 	public MoonBot(IDiscordClient client)
 	{
 		this.client = client;
 		EventDispatcher dispatcher = client.getDispatcher();
 		dispatcher.registerListener(this);
+		
+		moonPicMap = new HashMap<String, String>();
+		moonPicMap.put("New Moon", "C:\\eclipse\\workspace\\moonBot\\src\\main\\resources\\newMoon.png");
+		moonPicMap.put("First Quarter", "C:\\eclipse\\workspace\\moonBot\\src\\main\\resources\\firstQuarter.png");
+		moonPicMap.put("Full Moon", "C:\\eclipse\\workspace\\moonBot\\src\\main\\resources\\fullMoon.png");
+		moonPicMap.put("Last Quarter", "C:\\eclipse\\workspace\\moonBot\\src\\main\\resources\\lastQuarter.png");
 	}
 	
+	/**
+	 * Log in to Discord so the bot can be used.
+	 * 
+	 * @param token			String token associated with the bot, from Discord's site
+	 * @return				The bot
+	 */
 	public static MoonBot login(String token)
 	{
 		MoonBot bot = null; // Initialize bot variable
@@ -53,7 +86,8 @@ public class MoonBot implements IListener<MessageReceivedEvent>
 	}
 	
 	/**
-	 * Called when the client receives a message in a channel
+	 * Called when the client receives a message in a channel. If the message matches
+	 * something the bot is expecting, then the bot can act on it.
 	 */
 	@Override
 	public void handle(MessageReceivedEvent event)
@@ -74,7 +108,8 @@ public class MoonBot implements IListener<MessageReceivedEvent>
 			try {
 				String moonPhaseReturn = USNO.getMoonPhase(1);
 				String output = "The moon phase for today is: " + moonPhaseReturn;
-				new MessageBuilder(this.client).withChannel(channel).withContent(output).build();
+				File moonPic = new File(moonPicMap.get(moonPhaseReturn));
+				new MessageBuilder(this.client).withChannel(channel).withContent(output).withFile(moonPic).build();
 			} catch (IOException e) {
 				// IOException from the USNO class in case connection fails
 				e.printStackTrace();
@@ -90,20 +125,5 @@ public class MoonBot implements IListener<MessageReceivedEvent>
 				e.printStackTrace();
 			}
 		}
-		
-		/*try {
-			new MessageBuilder(this.client).withChannel(channel)
-			.withContent(message.getContent()).build();
-		} catch (RateLimitException e) {
-			System.err.print("Sending messages too quickly!");
-			e.printStackTrace();
-		} catch (DiscordException e) {
-			// Many possibilities, so use getErrorMessage
-			System.err.print(e.getErrorMessage()); // Print the error message sent by Discord
-			e.printStackTrace();
-		} catch (MissingPermissionsException e) {
-			System.err.print("Missing permissions for channel!");
-			e.printStackTrace();
-		}*/
 	}
 }

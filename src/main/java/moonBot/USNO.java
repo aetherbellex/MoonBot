@@ -19,6 +19,8 @@ import com.google.gson.JsonParser;
  * Class that connects to the U.S. Naval Observatory's API to get the moon phase.
  * The API is described here: http://aa.usno.navy.mil/data/docs/api.php#phase
  * 
+ * TODO: Add error checking and handling (JSON includes an error if it exists)
+ * 
  * @author Tasso Sales-Filho
  *
  */
@@ -26,6 +28,7 @@ public class USNO
 {
 	public static void main(String[] args) throws IOException
 	{
+		// For testing purposes
 		USNO.getMoonPhase(1);
 	}
 	
@@ -33,7 +36,7 @@ public class USNO
 	 * Get the moon phase from the website and return it as a string that can be
 	 * written in Discord. The API requires requests to be sent in this format:
 	 * 		http://api.usno.navy.mil/moon/phase?date=DATE&nump=NUMP
-	 * where DATE is the date in "XX/YY/ZZZZ" format
+	 * where DATE is the date in "MM/DD/YYYY" format
 	 * and NUMP is the number of phases from DATE to be returned.
 	 */
 	public static String getMoonPhase(int numPhases) throws IOException
@@ -52,9 +55,9 @@ public class USNO
 		
 		// Get the current date in month/day/year format, since that's what the site needs
 		SimpleDateFormat sdf = new SimpleDateFormat("M/dd/yyyy");
-		Date currentDate = new Date();
+		Date currentDate = new Date(); // store this for use later
 		String date = sdf.format(currentDate);
-		System.out.println(date);
+		//System.out.println(date);
 		
 		// Build the complete URL to query using the current date and specified numPhases
 		String url = "http://api.usno.navy.mil/moon/phase?date=" + date + "&nump=" + numPhases;
@@ -80,13 +83,12 @@ public class USNO
         // Make sure to close the connection
         in.close();
         
-        System.out.println(response.toString());
+        //System.out.println(response.toString());
         
         String jsonString = response.toString();
         
         // Google GSON functions to extract the moon phase string from the JSON
         JsonParser parser = new JsonParser();
-        //JsonArray array = parser.parse(jsonString).getAsJsonArray();
         JsonObject webResponse = parser.parse(jsonString).getAsJsonObject();
         JsonArray phaseDataArray = webResponse.getAsJsonArray("phasedata");
         
@@ -94,8 +96,11 @@ public class USNO
         String phaseResult = phaseObject.get("phase").getAsString();
         String phaseDate = phaseObject.get("date").getAsString();
         
+        // Use this to turn the date string into a Date object for comparison, below
         DateFormat format = new SimpleDateFormat("yyyy MMMM d");
         
+        // Logic to return the moon phase for the current day, since the API gives
+        // the moon phases only after the specified date
         try {
 			Date phaseDateObj = format.parse(phaseDate);
 			if (currentDate.before(phaseDateObj))
@@ -110,7 +115,5 @@ public class USNO
         System.out.println(phaseResult);
         
         return phaseResult;
-		
-		//return null;
 	}
 }
