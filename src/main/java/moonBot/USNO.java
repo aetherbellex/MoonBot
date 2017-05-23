@@ -26,6 +26,8 @@ import com.google.gson.JsonParser;
  */
 public class USNO
 {
+	private static final long fourDaysMillis = (86400000 * 4);
+	
 	public static void main(String[] args) throws IOException
 	{
 		// For testing purposes
@@ -101,10 +103,20 @@ public class USNO
         
         // Logic to return the moon phase for the current day, since the API gives
         // the moon phases only after the specified date
+        // There are 86400000 milliseconds in a day. If the difference between
+        // the current day and the date of the next moon phase is greater than
+        // 			(86400000 * 4),
+        // representing 4 days, then return the previous moon phase because we're
+        // closer to that quarter than we are to the next quarter.
         try {
 			Date phaseDateObj = format.parse(phaseDate);
-			if (currentDate.before(phaseDateObj))
+			long phaseDateMillis = phaseDateObj.getTime();
+			long currentDateMillis = currentDate.getTime();
+			//System.out.println(phaseDateMillis);
+			//System.out.println(currentDateMillis);
+			if ((phaseDateMillis - currentDateMillis) > fourDaysMillis)
 			{
+				//System.out.println(moonMap.get(phaseResult));
 				return moonMap.get(phaseResult);
 			}
 		} catch (ParseException e) {
@@ -112,7 +124,7 @@ public class USNO
 			e.printStackTrace();
 		}
         
-        System.out.println(phaseResult);
+        //System.out.println(phaseResult);
         
         return phaseResult;
 	}

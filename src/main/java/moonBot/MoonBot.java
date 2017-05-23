@@ -20,8 +20,6 @@ import sx.blah.discord.util.RateLimitException;
  * A simple bot for the chat program Discord that will tell you the moon phase for today, 
  * to the nearest quarter phase. Uses data from the U.S. Naval Observatory.
  * 
- * TODO: Add support for uploading images corresponding to the moon phase to Discord
- * 
  * @author Tasso Sales-Filho
  *
  */
