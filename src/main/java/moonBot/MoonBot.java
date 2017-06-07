@@ -68,7 +68,7 @@ public class MoonBot implements IListener<MessageReceivedEvent>
 	 */
 	public static MoonBot login(String token)
 	{
-		MoonBot bot = null; // Initialize bot variable
+		MoonBot bot = null;
 		
 		ClientBuilder builder = new ClientBuilder();
 		builder.withToken(token);
@@ -105,7 +105,7 @@ public class MoonBot implements IListener<MessageReceivedEvent>
 		{
 			try {
 				String moonPhaseReturn = USNO.getMoonPhase(1);
-				String output = "The moon phase for today is: " + moonPhaseReturn;
+				String output = "The closest quarter moon phase is: " + moonPhaseReturn;
 				File moonPic = new File(moonPicMap.get(moonPhaseReturn));
 				new MessageBuilder(this.client).withChannel(channel).withContent(output).withFile(moonPic).build();
 			} catch (IOException e) {
@@ -116,7 +116,7 @@ public class MoonBot implements IListener<MessageReceivedEvent>
 				e.printStackTrace();
 			} catch (DiscordException e) {
 				// Many possibilities, so use getErrorMessage
-				System.err.print(e.getErrorMessage()); // Print the error message sent by Discord
+				System.err.print(e.getErrorMessage());
 				e.printStackTrace();
 			} catch (MissingPermissionsException e) {
 				System.err.print("Missing permissions for channel!");
